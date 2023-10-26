@@ -1,6 +1,5 @@
-import 'dart:ffi';
-
 import 'package:bilgi_testi/constants.dart';
+import 'package:bilgi_testi/test-veri.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(BilgiTesti());
@@ -29,26 +28,45 @@ class SoruSayfasi extends StatefulWidget {
 
 class _SoruSayfasiState extends State<SoruSayfasi> {
   List<Widget> secimler = [];
-  List<String> sorular = [
-    'Titanic gelmiş geçmiş en büyük gemidir', //false
-    'Dünyadaki tavuk sayısı insan sayısından fazladır', //true
-    'Kelebeklerin ömrü bir gündür', //false
-    'Dünya düzdür', //false
-    'Kaju fıstığı aslında bir meyvenin sapıdır', //true
-    'Fatih Sultan Mehmet hiç patates yememiştir', //true
-    'Fransızlar 80 demek için, 4 - 20 der' //true
-  ];
-  List<bool> yanitlar = [
-    false, //false
-    true, //true
-    false, //false
-    false, //false
-    true, //true
-    true, //true
-    true //true
-  ];
 
-  int soruIndex = 0;
+  TestVeri test_1 = TestVeri();
+
+  void butonFonksiyonu(bool secilenButon) {
+    if (test_1.testBittiMi() == true) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Bravo Testi Bitirdiniz"),
+            // content: new Text("Alert Dialog body"),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text("Başa Dön"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  setState(
+                    () {
+                      test_1.testiSifirla();
+                      secimler = [];
+                    },
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      setState(
+        () {
+          test_1.getSoruYaniti() == secilenButon
+              ? secimler.add(kDogruIconu)
+              : secimler.add(kYanlisIconu);
+          test_1.sonrakiSoru();
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +80,7 @@ class _SoruSayfasiState extends State<SoruSayfasi> {
             padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                sorular[soruIndex],
+                test_1.getSoruMetni(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 20.0,
@@ -91,20 +109,7 @@ class _SoruSayfasiState extends State<SoruSayfasi> {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red[400]),
                       onPressed: () {
-                        bool yanlisYanit = yanitlar[soruIndex];
-                        setState(() {
-                          yanlisYanit == true
-                              ? secimler.add(kYanlisIconu)
-                              : secimler.add(kDogruIconu);
-                          // if (yanlisYanit == true) {
-                          //   secimler.add(kYanlisIconu);
-                          // } else {
-                          //   secimler.add(kDogruIconu);
-                          // }
-
-                          // secimler.add(kYanlisIconu);
-                          soruIndex++;
-                        });
+                        butonFonksiyonu(false);
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(12),
@@ -122,14 +127,7 @@ class _SoruSayfasiState extends State<SoruSayfasi> {
                         backgroundColor: Colors.green[400],
                       ),
                       onPressed: () {
-                        bool dogruYanit = yanitlar[soruIndex];
-                        setState(() {
-                          dogruYanit == true
-                              ? secimler.add(kDogruIconu)
-                              : secimler.add(kYanlisIconu);
-                          //secimler.add(kDogruIconu);
-                          soruIndex++;
-                        });
+                        butonFonksiyonu(true);
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(12),
